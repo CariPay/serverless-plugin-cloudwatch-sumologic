@@ -11,7 +11,7 @@ Plugin which auto-subscribes a log delivery lambda function to lambda log groups
 ```yaml
 plugins:
   - serverless-plugin-cloudwatch-sumologic
-  
+
 custom:
     shipLogs:
         # Required
@@ -19,7 +19,19 @@ custom:
         # OR
         collectorUrl: Paste your url from step 1. here
 
-        # Optional, default pattern is "[timestamp=*Z, request_id=\"*-*\", event]"
+        # Optional, by default no pattern is specified.
+        # NOTE: Some runtimes report a log level as the first parameter, so the
+        #       default will not report any of your logs. You'll need to define
+        #       a `filterPattern` that matches the behavior of your runtime.
+        #
+        #       Most of the time, you can add `log_level` as the first parameter.
+        #       (e.g. "[log_level, timestamp = *Z, request_id, event]")
+        #
+        #       If you want to report everything, specify `filterPattern` as
+        #       an empty string ("").
+        #
+        #       See https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html
+        #       for more detailed information.
         filterPattern: "[timestamp=*Z, request_id=\"*-*\", correlation_id=\"*-*\", event]"
         role: ARN of IAM role to use
 ```
@@ -36,6 +48,11 @@ Upon running `sls deploy` it will...
     1. CloudFormation Subscription Filter Resource linking the log groups created by serverless framework to the sumologic lambda function.
     2. Permissions to Invoke the logging function, as a Resource.
 3. Wait for the stack creation/update to complete and then delete the temporarily created function source directory.
+
+# Upgrading
+
+See [UPGRADING.md](https://github.com/ACloudGuru/serverless-plugin-cloudwatch-sumologic/blob/master/UPGRADING.md)
+for information on upgrading from previous versions of the plugin.
 
 # Caveats
 You must be running serverless 1.25.0 or higher.
